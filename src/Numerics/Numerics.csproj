@@ -46,7 +46,7 @@ BUG: Trigonometry: Fix imaginary part sign of complex hyperbolic cotangent</Pack
         <DefineConstants>NETSTANDARD;NATIVE</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
-        <DefineConstants>NATIVE</DefineConstants>
+        <DefineConstants>DEBUG;NATIVE;NETSTANDARD2_0</DefineConstants>
     </PropertyGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
         <Reference Include="System" />

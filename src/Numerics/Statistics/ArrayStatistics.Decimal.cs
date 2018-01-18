@@ -1,9 +1,9 @@
-// <copyright file="ArrayStatistics.cs" company="Math.NET">
-// Math.NET Numerics, part of the Math.NET Project
+// <copyright file="ArrayStatistics.cs" company="NET">
+// NET Numerics, part of the NET Project
 // http://numerics.mathdotnet.com
 // http://github.com/mathnet/mathnet-numerics
 //
-// Copyright (c) 2009-2015 Math.NET
+// Copyright (c) 2009-2015 NET
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -32,6 +32,28 @@ using MathNet.Numerics.Properties;
 
 namespace MathNet.Numerics.Statistics
 {
+    using static DecimalConstants;
+    using static DecimalMath;
+
+    static class DecimalConstants
+    {
+        internal const decimal Zero = 0m;
+        internal const decimal One = 1m;
+        internal const decimal Half = 0.5m;
+        internal const decimal Quarter = 0.25m;
+        internal const decimal ThreeQuarter = 0.75m;
+        internal const decimal Two = 2m;
+        internal const decimal Three = 3m;
+        internal const decimal Third = 1m / 3m;
+        internal const decimal HalfThreeQuarter = 0.375m;
+        internal const decimal BigEpsilon= 1e-9m;
+        internal const decimal Cents = 0.01m;
+        internal const decimal NaN = decimal.MinValue;
+        internal const decimal MaxValue = decimal.MaxValue;
+        internal const decimal MinValue = decimal.MinValue;
+        internal static bool IsNaN(decimal d) => d == decimal.MinValue;
+    }
+
     /// <summary>
     /// Statistics operating on arrays assumed to be unsorted.
     /// WARNING: Methods with the Inplace-suffix may modify the data array by reordering its entries.
@@ -41,6 +63,8 @@ namespace MathNet.Numerics.Statistics
     /// <seealso cref="Statistics"/>
     public static partial class ArrayStatistics
     {
+
+
         // TODO: Benchmark various options to find out the best approach (-> branch prediction)
         // TODO: consider leveraging MKL
 
@@ -49,17 +73,17 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double Minimum(double[] data)
+        public static decimal Minimum(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double min = double.PositiveInfinity;
+            decimal min = MaxValue;
             for (int i = 0; i < data.Length; i++)
             {
-                if (data[i] < min || double.IsNaN(data[i]))
+                if (data[i] < min || IsNaN(data[i]))
                 {
                     min = data[i];
                 }
@@ -73,17 +97,17 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double Maximum(double[] data)
+        public static decimal Maximum(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double max = double.NegativeInfinity;
+            decimal max = MinValue;
             for (int i = 0; i < data.Length; i++)
             {
-                if (data[i] > max || double.IsNaN(data[i]))
+                if (data[i] > max || IsNaN(data[i]))
                 {
                     max = data[i];
                 }
@@ -97,19 +121,19 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double MinimumAbsolute(double[] data)
+        public static decimal MinimumAbsolute(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double min = double.PositiveInfinity;
+            decimal min = MaxValue;
             for (int i = 0; i < data.Length; i++)
             {
-                if (Math.Abs(data[i]) < min || double.IsNaN(data[i]))
+                if (Abs(data[i]) < min || IsNaN(data[i]))
                 {
-                    min = Math.Abs(data[i]);
+                    min = Abs(data[i]);
                 }
             }
 
@@ -121,19 +145,19 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double MaximumAbsolute(double[] data)
+        public static decimal MaximumAbsolute(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double max = 0.0d;
+            var max = Zero;
             for (int i = 0; i < data.Length; i++)
             {
-                if (Math.Abs(data[i]) > max || double.IsNaN(data[i]))
+                if (Abs(data[i]) > max || IsNaN(data[i]))
                 {
-                    max = Math.Abs(data[i]);
+                    max = Abs(data[i]);
                 }
             }
 
@@ -145,18 +169,18 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double Mean(double[] data)
+        public static decimal Mean(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double mean = 0;
+            var mean = Zero;
             ulong m = 0;
             for (int i = 0; i < data.Length; i++)
             {
-                mean += (data[i] - mean)/++m;
+                mean += (data[i] - mean) / ++m;
             }
 
             return mean;
@@ -167,20 +191,20 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double GeometricMean(double[] data)
+        public static decimal GeometricMean(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double sum = 0;
+            var sum = Zero;
             for (int i = 0; i < data.Length; i++)
             {
-                sum += Math.Log(data[i]);
+                sum += Log(data[i]);
             }
 
-            return Math.Exp(sum/data.Length);
+            return Exp(sum / data.Length);
         }
 
         /// <summary>
@@ -188,20 +212,20 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double HarmonicMean(double[] data)
+        public static decimal HarmonicMean(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double sum = 0;
+            var sum = Zero;
             for (int i = 0; i < data.Length; i++)
             {
-                sum += 1.0/data[i];
+                sum += One / data[i];
             }
 
-            return data.Length/sum;
+            return data.Length / sum;
         }
 
         /// <summary>
@@ -210,23 +234,23 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data has less than two entries or if any entry is NaN.
         /// </summary>
         /// <param name="samples">Sample array, no sorting is assumed.</param>
-        public static double Variance(double[] samples)
+        public static decimal Variance(decimal[] samples)
         {
             if (samples.Length <= 1)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double variance = 0;
-            double t = samples[0];
+            var variance = Zero;
+            var t = samples[0];
             for (int i = 1; i < samples.Length; i++)
             {
                 t += samples[i];
-                double diff = ((i + 1)*samples[i]) - t;
-                variance += (diff*diff)/((i + 1.0)*i);
+                decimal diff = ((i + 1) * samples[i]) - t;
+                variance += (diff * diff) / ((i + One) * i);
             }
 
-            return variance/(samples.Length - 1);
+            return variance / (samples.Length - 1);
         }
 
         /// <summary>
@@ -235,23 +259,23 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or if any entry is NaN.
         /// </summary>
         /// <param name="population">Sample array, no sorting is assumed.</param>
-        public static double PopulationVariance(double[] population)
+        public static decimal PopulationVariance(decimal[] population)
         {
             if (population.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double variance = 0;
-            double t = population[0];
+            var variance = Zero;
+            var t = population[0];
             for (int i = 1; i < population.Length; i++)
             {
                 t += population[i];
-                double diff = ((i + 1)*population[i]) - t;
-                variance += (diff*diff)/((i + 1.0)*i);
+                decimal diff = ((i + 1) * population[i]) - t;
+                variance += (diff * diff) / ((i + One) * i);
             }
 
-            return variance/population.Length;
+            return variance / population.Length;
         }
 
         /// <summary>
@@ -260,9 +284,9 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data has less than two entries or if any entry is NaN.
         /// </summary>
         /// <param name="samples">Sample array, no sorting is assumed.</param>
-        public static double StandardDeviation(double[] samples)
+        public static decimal StandardDeviation(decimal[] samples)
         {
-            return Math.Sqrt(Variance(samples));
+            return Sqrt(Variance(samples));
         }
 
         /// <summary>
@@ -271,9 +295,9 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or if any entry is NaN.
         /// </summary>
         /// <param name="population">Sample array, no sorting is assumed.</param>
-        public static double PopulationStandardDeviation(double[] population)
+        public static decimal PopulationStandardDeviation(decimal[] population)
         {
-            return Math.Sqrt(PopulationVariance(population));
+            return Sqrt(PopulationVariance(population));
         }
 
         /// <summary>
@@ -282,9 +306,9 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN for mean if data is empty or any entry is NaN and NaN for variance if data has less than two entries or if any entry is NaN.
         /// </summary>
         /// <param name="samples">Sample array, no sorting is assumed.</param>
-        public static Tuple<double, double> MeanVariance(double[] samples)
+        public static Tuple<decimal, decimal> MeanVariance(decimal[] samples)
         {
-            return new Tuple<double, double>(Mean(samples), Variance(samples));
+            return new Tuple<decimal, decimal>(Mean(samples), Variance(samples));
         }
 
         /// <summary>
@@ -293,9 +317,9 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN for mean if data is empty or any entry is NaN and NaN for standard deviation if data has less than two entries or if any entry is NaN.
         /// </summary>
         /// <param name="samples">Sample array, no sorting is assumed.</param>
-        public static Tuple<double, double> MeanStandardDeviation(double[] samples)
+        public static Tuple<decimal, decimal> MeanStandardDeviation(decimal[] samples)
         {
-            return new Tuple<double, double>(Mean(samples), StandardDeviation(samples));
+            return new Tuple<decimal, decimal>(Mean(samples), StandardDeviation(samples));
         }
 
         /// <summary>
@@ -305,7 +329,7 @@ namespace MathNet.Numerics.Statistics
         /// </summary>
         /// <param name="samples1">First sample array.</param>
         /// <param name="samples2">Second sample array.</param>
-        public static double Covariance(double[] samples1, double[] samples2)
+        public static decimal Covariance(decimal[] samples1, decimal[] samples2)
         {
             if (samples1.Length != samples2.Length)
             {
@@ -314,18 +338,18 @@ namespace MathNet.Numerics.Statistics
 
             if (samples1.Length <= 1)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double mean1 = Mean(samples1);
-            double mean2 = Mean(samples2);
-            double covariance = 0.0;
+            var mean1 = Mean(samples1);
+            var mean2 = Mean(samples2);
+            var covariance = Zero;
             for (int i = 0; i < samples1.Length; i++)
             {
-                covariance += (samples1[i] - mean1)*(samples2[i] - mean2);
+                covariance += (samples1[i] - mean1) * (samples2[i] - mean2);
             }
 
-            return covariance/(samples1.Length - 1);
+            return covariance / (samples1.Length - 1);
         }
 
         /// <summary>
@@ -335,7 +359,7 @@ namespace MathNet.Numerics.Statistics
         /// </summary>
         /// <param name="population1">First population array.</param>
         /// <param name="population2">Second population array.</param>
-        public static double PopulationCovariance(double[] population1, double[] population2)
+        public static decimal PopulationCovariance(decimal[] population1, decimal[] population2)
         {
             if (population1.Length != population2.Length)
             {
@@ -344,18 +368,18 @@ namespace MathNet.Numerics.Statistics
 
             if (population1.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double mean1 = Mean(population1);
-            double mean2 = Mean(population2);
-            double covariance = 0.0;
+            var mean1 = Mean(population1);
+            var mean2 = Mean(population2);
+            var covariance = Zero;
             for (int i = 0; i < population1.Length; i++)
             {
-                covariance += (population1[i] - mean1)*(population2[i] - mean2);
+                covariance += (population1[i] - mean1) * (population2[i] - mean2);
             }
 
-            return covariance/population1.Length;
+            return covariance / population1.Length;
         }
 
         /// <summary>
@@ -363,21 +387,21 @@ namespace MathNet.Numerics.Statistics
         /// Returns NaN if data is empty or any entry is NaN.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed.</param>
-        public static double RootMeanSquare(double[] data)
+        public static decimal RootMeanSquare(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double mean = 0;
+            var mean = Zero;
             ulong m = 0;
             for (int i = 0; i < data.Length; i++)
             {
-                mean += (data[i]*data[i] - mean)/++m;
+                mean += (data[i] * data[i] - mean) / ++m;
             }
 
-            return Math.Sqrt(mean);
+            return Sqrt(mean);
         }
 
         /// <summary>
@@ -386,11 +410,11 @@ namespace MathNet.Numerics.Statistics
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
         /// <param name="order">One-based order of the statistic, must be between 1 and N (inclusive).</param>
-        public static double OrderStatisticInplace(double[] data, int order)
+        public static decimal OrderStatisticInplace(decimal[] data, int order)
         {
             if (order < 1 || order > data.Length)
             {
-                return double.NaN;
+                return NaN;
             }
 
             if (order == 1)
@@ -411,12 +435,12 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        public static double MedianInplace(double[] data)
+        public static decimal MedianInplace(decimal[] data)
         {
-            var k = data.Length/2;
+            var k = data.Length / 2;
             return data.Length.IsOdd()
                 ? SelectInplace(data, k)
-                : (SelectInplace(data, k - 1) + SelectInplace(data, k))/2.0;
+                : (SelectInplace(data, k - 1) + SelectInplace(data, k)) * Half;
         }
 
         /// <summary>
@@ -427,10 +451,11 @@ namespace MathNet.Numerics.Statistics
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
         /// <param name="p">Percentile selector, between 0 and 100 (inclusive).</param>
-        public static double PercentileInplace(double[] data, int p)
+        public static decimal PercentileInplace(decimal[] data, int p)
         {
-            return QuantileInplace(data, p/100d);
+            return QuantileInplace(data, p * Cents);
         }
+
 
         /// <summary>
         /// Estimates the first quartile value from the unsorted data array.
@@ -438,9 +463,9 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        public static double LowerQuartileInplace(double[] data)
+        public static decimal LowerQuartileInplace(decimal[] data)
         {
-            return QuantileInplace(data, 0.25d);
+            return QuantileInplace(data, Quarter);
         }
 
         /// <summary>
@@ -449,9 +474,9 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        public static double UpperQuartileInplace(double[] data)
+        public static decimal UpperQuartileInplace(decimal[] data)
         {
-            return QuantileInplace(data, 0.75d);
+            return QuantileInplace(data, ThreeQuarter);
         }
 
         /// <summary>
@@ -460,9 +485,9 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        public static double InterquartileRangeInplace(double[] data)
+        public static decimal InterquartileRangeInplace(decimal[] data)
         {
-            return QuantileInplace(data, 0.75d) - QuantileInplace(data, 0.25d);
+            return QuantileInplace(data, ThreeQuarter) - QuantileInplace(data, Quarter);
         }
 
         /// <summary>
@@ -471,15 +496,15 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        public static double[] FiveNumberSummaryInplace(double[] data)
+        public static decimal[] FiveNumberSummaryInplace(decimal[] data)
         {
             if (data.Length == 0)
             {
-                return new[] { double.NaN, double.NaN, double.NaN, double.NaN, double.NaN };
+                return new[] { NaN, NaN, NaN, NaN, NaN };
             }
 
             // TODO: Benchmark: is this still faster than sorting the array then using SortedArrayStatistics instead?
-            return new[] { Minimum(data), QuantileInplace(data, 0.25d), MedianInplace(data), QuantileInplace(data, 0.75d), Maximum(data) };
+            return new[] { Minimum(data), QuantileInplace(data, Quarter), MedianInplace(data), QuantileInplace(data, ThreeQuarter), Maximum(data) };
         }
 
         /// <summary>
@@ -490,35 +515,35 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        /// <param name="tau">Quantile selector, between 0.0 and 1.0 (inclusive).</param>
+        /// <param name="tau">Quantile selector, between Zero and One (inclusive).</param>
         /// <remarks>
         /// R-8, SciPy-(1/3,1/3):
         /// Linear interpolation of the approximate medians for order statistics.
         /// When tau &lt; (2/3) / (N + 1/3), use x1. When tau &gt;= (N - 1/3) / (N + 1/3), use xN.
         /// </remarks>
-        public static double QuantileInplace(double[] data, double tau)
+        public static decimal QuantileInplace(decimal[] data, decimal tau)
         {
-            if (tau < 0d || tau > 1d || data.Length == 0)
+            if (tau < Zero || tau > One || data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            double h = (data.Length + 1d/3d)*tau + 1d/3d;
+            var h = (data.Length + Third) * tau + Third;
             var hf = (int)h;
 
-            if (hf <= 0 || tau == 0d)
+            if (hf <= 0 || tau == Zero)
             {
                 return Minimum(data);
             }
 
-            if (hf >= data.Length || tau == 1d)
+            if (hf >= data.Length || tau == One)
             {
                 return Maximum(data);
             }
 
             var a = SelectInplace(data, hf - 1);
             var b = SelectInplace(data, hf);
-            return a + (h - hf)*(b - a);
+            return a + (h - hf) * (b - a);
         }
 
         /// <summary>
@@ -529,35 +554,36 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        /// <param name="tau">Quantile selector, between 0.0 and 1.0 (inclusive)</param>
+        /// <param name="tau">Quantile selector, between Zero and One (inclusive)</param>
         /// <param name="a">a-parameter</param>
         /// <param name="b">b-parameter</param>
         /// <param name="c">c-parameter</param>
         /// <param name="d">d-parameter</param>
-        public static double QuantileCustomInplace(double[] data, double tau, double a, double b, double c, double d)
+        public static decimal QuantileCustomInplace(decimal[] data, decimal tau, decimal a, decimal b, decimal c, decimal d)
         {
-            if (tau < 0d || tau > 1d || data.Length == 0)
+            if (tau < Zero || tau > One || data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            var x = a + (data.Length + b)*tau - 1;
+            var x = a + (data.Length + b) * tau - 1;
 #if PORTABLE
             var ip = (int)x;
 #else
-            var ip = Math.Truncate(x);
+            var ip = Truncate(x);
 #endif
             var fp = x - ip;
 
-            if (Math.Abs(fp) < 1e-9)
+            if (Abs(fp) < BigEpsilon)
             {
                 return SelectInplace(data, (int)ip);
             }
 
-            var lower = SelectInplace(data, (int)Math.Floor(x));
-            var upper = SelectInplace(data, (int)Math.Ceiling(x));
-            return lower + (upper - lower)*(c + d*fp);
+            var lower = SelectInplace(data, (int)Floor(x));
+            var upper = SelectInplace(data, (int)Ceiling(x));
+            return lower + (upper - lower) * (c + d * fp);
         }
+
 
         /// <summary>
         /// Estimates the tau-th quantile from the unsorted data array.
@@ -567,21 +593,21 @@ namespace MathNet.Numerics.Statistics
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
         /// <param name="data">Sample array, no sorting is assumed. Will be reordered.</param>
-        /// <param name="tau">Quantile selector, between 0.0 and 1.0 (inclusive)</param>
+        /// <param name="tau">Quantile selector, between Zero and One (inclusive)</param>
         /// <param name="definition">Quantile definition, to choose what product/definition it should be consistent with</param>
-        public static double QuantileCustomInplace(double[] data, double tau, QuantileDefinition definition)
+        public static decimal QuantileCustomInplace(decimal[] data, decimal tau, QuantileDefinition definition)
         {
-            if (tau < 0d || tau > 1d || data.Length == 0)
+            if (tau < Zero || tau > One || data.Length == 0)
             {
-                return double.NaN;
+                return NaN;
             }
 
-            if (tau == 0d || data.Length == 1)
+            if (tau == Zero || data.Length == 1)
             {
                 return Minimum(data);
             }
 
-            if (tau == 1d)
+            if (tau == One)
             {
                 return Maximum(data);
             }
@@ -589,83 +615,84 @@ namespace MathNet.Numerics.Statistics
             switch (definition)
             {
                 case QuantileDefinition.R1:
-                {
-                    double h = data.Length*tau + 0.5d;
-                    return SelectInplace(data, (int)Math.Ceiling(h - 0.5d) - 1);
-                }
+                    {
+                        var h = data.Length * tau + Half;
+                        return SelectInplace(data, (int)Ceiling(h - Half) - 1);
+                    }
 
                 case QuantileDefinition.R2:
-                {
-                    double h = data.Length*tau + 0.5d;
-                    return (SelectInplace(data, (int)Math.Ceiling(h - 0.5d) - 1) + SelectInplace(data, (int)(h + 0.5d) - 1))*0.5d;
-                }
+                    {
+                        var h = data.Length * tau + Half;
+                        return (SelectInplace(data, (int)Ceiling(h - Half) - 1) + SelectInplace(data, (int)(h + Half) - 1)) * Half;
+                    }
 
                 case QuantileDefinition.R3:
-                {
-                    double h = data.Length*tau;
-                    return SelectInplace(data, (int)Math.Round(h) - 1);
-                }
+                    {
+                        var h = data.Length * tau;
+                        return SelectInplace(data, (int)Round(h) - 1);
+                    }
 
                 case QuantileDefinition.R4:
-                {
-                    double h = data.Length*tau;
-                    var hf = (int)h;
-                    var lower = SelectInplace(data, hf - 1);
-                    var upper = SelectInplace(data, hf);
-                    return lower + (h - hf)*(upper - lower);
-                }
+                    {
+                        var h = data.Length * tau;
+                        var hf = (int)h;
+                        var lower = SelectInplace(data, hf - 1);
+                        var upper = SelectInplace(data, hf);
+                        return lower + (h - hf) * (upper - lower);
+                    }
 
                 case QuantileDefinition.R5:
-                {
-                    double h = data.Length*tau + 0.5d;
-                    var hf = (int)h;
-                    var lower = SelectInplace(data, hf - 1);
-                    var upper = SelectInplace(data, hf);
-                    return lower + (h - hf)*(upper - lower);
-                }
+                    {
+                        var h = data.Length * tau + Half;
+                        var hf = (int)h;
+                        var lower = SelectInplace(data, hf - 1);
+                        var upper = SelectInplace(data, hf);
+                        return lower + (h - hf) * (upper - lower);
+                    }
 
                 case QuantileDefinition.R6:
-                {
-                    double h = (data.Length + 1)*tau;
-                    var hf = (int)h;
-                    var lower = SelectInplace(data, hf - 1);
-                    var upper = SelectInplace(data, hf);
-                    return lower + (h - hf)*(upper - lower);
-                }
+                    {
+                        var h = (data.Length + 1) * tau;
+                        var hf = (int)h;
+                        var lower = SelectInplace(data, hf - 1);
+                        var upper = SelectInplace(data, hf);
+                        return lower + (h - hf) * (upper - lower);
+                    }
 
                 case QuantileDefinition.R7:
-                {
-                    double h = (data.Length - 1)*tau + 1d;
-                    var hf = (int)h;
-                    var lower = SelectInplace(data, hf - 1);
-                    var upper = SelectInplace(data, hf);
-                    return lower + (h - hf)*(upper - lower);
-                }
+                    {
+                        var h = (data.Length - 1) * tau + One;
+                        var hf = (int)h;
+                        var lower = SelectInplace(data, hf - 1);
+                        var upper = SelectInplace(data, hf);
+                        return lower + (h - hf) * (upper - lower);
+                    }
 
                 case QuantileDefinition.R8:
-                {
-                    double h = (data.Length + 1/3d)*tau + 1/3d;
-                    var hf = (int)h;
-                    var lower = SelectInplace(data, hf - 1);
-                    var upper = SelectInplace(data, hf);
-                    return lower + (h - hf)*(upper - lower);
-                }
+                    {
+                        var h = (data.Length + Third) * tau + Third;
+                        var hf = (int)h;
+                        var lower = SelectInplace(data, hf - 1);
+                        var upper = SelectInplace(data, hf);
+                        return lower + (h - hf) * (upper - lower);
+                    }
 
                 case QuantileDefinition.R9:
-                {
-                    double h = (data.Length + 0.25d)*tau + 0.375d;
-                    var hf = (int)h;
-                    var lower = SelectInplace(data, hf - 1);
-                    var upper = SelectInplace(data, hf);
-                    return lower + (h - hf)*(upper - lower);
-                }
+                    {
+                        var h = (data.Length + Quarter) * tau + HalfThreeQuarter;
+                        var hf = (int)h;
+                        var lower = SelectInplace(data, hf - 1);
+                        var upper = SelectInplace(data, hf);
+                        return lower + (h - hf) * (upper - lower);
+                    }
 
                 default:
                     throw new NotSupportedException();
             }
         }
 
-        static double SelectInplace(double[] workingData, int rank)
+
+        static decimal SelectInplace(decimal[] workingData, int rank)
         {
             // Numerical Recipes: select
             // http://en.wikipedia.org/wiki/Selection_algorithm
@@ -679,7 +706,7 @@ namespace MathNet.Numerics.Statistics
                 return Maximum(workingData);
             }
 
-            double[] a = workingData;
+            var a = workingData;
             int low = 0;
             int high = a.Length - 1;
 
@@ -726,7 +753,7 @@ namespace MathNet.Numerics.Statistics
 
                 int begin = low + 1;
                 int end = high;
-                double pivot = a[begin];
+                var pivot = a[begin];
 
                 while (true)
                 {
@@ -773,9 +800,9 @@ namespace MathNet.Numerics.Statistics
         /// with an existing system.
         /// WARNING: Works inplace and can thus causes the data array to be reordered.
         /// </summary>
-        public static double[] RanksInplace(double[] data, RankDefinition definition = RankDefinition.Default)
+        public static decimal[] RanksInplace(decimal[] data, RankDefinition definition = RankDefinition.Default)
         {
-            var ranks = new double[data.Length];
+            var ranks = new decimal[data.Length];
             var index = new int[data.Length];
             for (int i = 0; i < index.Length; i++)
             {
@@ -797,7 +824,7 @@ namespace MathNet.Numerics.Statistics
             int previousIndex = 0;
             for (int i = 1; i < data.Length; i++)
             {
-                if (Math.Abs(data[i] - data[previousIndex]) <= 0d)
+                if (Abs(data[i] - data[previousIndex]) <= Zero)
                 {
                     continue;
                 }
@@ -818,29 +845,29 @@ namespace MathNet.Numerics.Statistics
             return ranks;
         }
 
-        static void RanksTies(double[] ranks, int[] index, int a, int b, RankDefinition definition)
+        static void RanksTies(decimal[] ranks, int[] index, int a, int b, RankDefinition definition)
         {
             // TODO: potential for PERF optimization
-            double rank;
+            decimal rank;
             switch (definition)
             {
                 case RankDefinition.Average:
-                {
-                    rank = (b + a - 1)/2d + 1;
-                    break;
-                }
+                    {
+                        rank = (b + a - 1) * Half + 1;
+                        break;
+                    }
 
                 case RankDefinition.Min:
-                {
-                    rank = a + 1;
-                    break;
-                }
+                    {
+                        rank = a + 1;
+                        break;
+                    }
 
                 case RankDefinition.Max:
-                {
-                    rank = b;
-                    break;
-                }
+                    {
+                        rank = b;
+                        break;
+                    }
 
                 default:
                     throw new NotSupportedException();

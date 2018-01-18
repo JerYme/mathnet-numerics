@@ -1005,11 +1005,9 @@ namespace MathNet.Numerics.Statistics
         /// </summary>
         /// <param name="data">The data sample sequence.</param>
         /// <param name="p">Percentile selector, between 0 and 100 (inclusive).</param>
-        public static double Percentile(this IEnumerable<double> data, int p)
-        {
-            double[] array = data.ToArray();
-            return ArrayStatistics.PercentileInplace(array, p);
-        }
+        public static double Percentile(this IEnumerable<double> data, int p) => ArrayStatistics.PercentileInplace(data.ToArray(), p);
+
+        public static double PercentileWeighted(this IEnumerable<double> data, int p, IEnumerable<double> weights) => ArrayStatistics.PercentileInplace(data.ToArray(), p, weights.ToArray());
 
         /// <summary>
         /// Estimates the p-Percentile value from the provided samples.
